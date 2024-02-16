@@ -4,6 +4,7 @@
     "@whiskeysockets/baileys": "^6.6.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "^0.0.1-security",
+    "node-webpmux": "^3.2.0",
     "pino": "^8.18.0",
     "qrcode-terminal": "^0.12.0"
   }
