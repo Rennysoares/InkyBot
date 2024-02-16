@@ -1,5 +1,5 @@
 const { configBot } = require('../config/config')
-function menu(userName, dataFormatada, horas, minutos, prefix){
+function menu(userName, dataFormatada, horas, minutos, segundos, prefix){
 
     let prefixes = ''
     
@@ -11,7 +11,7 @@ function menu(userName, dataFormatada, horas, minutos, prefix){
 │ Inky Bot (beta)
 │ Usuário: ${userName} 
 │ Data: ${dataFormatada} 
-│ Hora: ${horas}:${minutos}
+│ Hora: ${horas}:${minutos}:${segundos}
 │ Prefixos: [ ${prefixes}]  
 ├══════════════ 
 │

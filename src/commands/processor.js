@@ -32,6 +32,11 @@ async function processorMessage(sock, messageReceived, messageType) {
     const dataFormatada = dataAtual.toLocaleDateString();
     const horas = dataAtual.getHours();
     const minutos = dataAtual.getMinutes();
+    const segundos = dataAtual.getSeconds();
+
+    const hora = horas < 10 ? '0' + horas : horas;
+    const minuto = minutos < 10 ? '0' + minutos : minutos;
+    const segundo = segundos < 10 ? '0' + segundos : segundos;
 
     //outros
     const loadingSticker = '⌛'
@@ -43,7 +48,7 @@ async function processorMessage(sock, messageReceived, messageType) {
     if (isCommand) {
 
         if (command == BOT_COMMANDS.MENU) {
-            text = menu(pushName, dataFormatada, horas, minutos, currentPrefix)
+            text = menu(pushName, dataFormatada, hora, minuto, segundo, currentPrefix)
             image = './src/assets/inkybot.jpg'
             await sendImage(sock, messageFrom, image, messageReceived, text)
         } else if (command == BOT_COMMANDS.STICKER || command == BOT_COMMANDS.STICKERABREV) {
@@ -91,6 +96,15 @@ async function processorMessage(sock, messageReceived, messageType) {
 
             }
 
+        } else if(command == BOT_COMMANDS.GITHUB){
+            text = `github.com/Rennysoares/InkyBot`
+            sendText(sock, messageFrom, text, messageReceived)
+        } else if(command == BOT_COMMANDS.CRIADOR){
+            text = `wa.me/559295059178`
+            sendText(sock, messageFrom, text, messageReceived)
+        } else {
+            text = `Este comando não existe. Por favor, utilize ${currentPrefix}menu para ver os comandos disponíveis `
+            sendText(sock, messageFrom, text, messageReceived)
         }
     }
 }
