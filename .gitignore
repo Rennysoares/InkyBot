@@ -1,6 +1,4 @@
 node_modules
 session
 indexbackup.js
-./src/temp/sticker.mp4
-./src/temp/sticker.png
-./src/temp/sticker.webp
+.\src\temp\

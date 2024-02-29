@@ -2,7 +2,7 @@
 const webp = require("node-webpmux");
 
 async function addStickerMetaData(mediaPath, metadata) {
-  const file = `./src/temp/sticker.webp`;
+  const file = mediaPath;
 
   if (metadata.packname || metadata.author) {
     const img = new webp.Image();

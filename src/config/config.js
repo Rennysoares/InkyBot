@@ -1,6 +1,6 @@
 const configBot = {
-    prefixes: ['.', '/', '!'],
-
+    prefixes: ['.', '/', '!', '#', '+'],
+    isConsoleLog: false
 }
 module.exports = {
     configBot
