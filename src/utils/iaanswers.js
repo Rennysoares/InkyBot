@@ -1,28 +1,35 @@
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { sendText, sendReaction } = require("./answers")
+async function InkyIaAnswer(sock, messageFrom, args, messageReceived) {
 
 
-const OpenAI = require('openai');
+    apiKey = "AIzaSyAbkjAdYJGpd-OA_O6tYsj689yfIpYrgmU"
+    // Access your API key as an environment variable (see "Set up your API key" above)
+    const genAI = new GoogleGenerativeAI(apiKey);
 
-async function InkyIaAnswer(sock, messageFrom, args, command, messageReceived){
+    async function run() {
+        // For text-only input, use the gemini-pro model
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    //setup api key
-    apiKey = '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'
-    const openai = new OpenAI({
-        apiKey: apiKey, // This is the default and can be omitted
-    });
+        const prompt = args
 
-    //get response
-    const userInput = args
-    const getResponse = async () => {
-
-        const chatCompletion = await openai.chat.completions.create({
-            messages: [{ role: 'user', content: userInput }],
-            model: 'gpt-3.5-turbo',
-          });
-
-        console.log(chatCompletion)
-
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        await sendReaction(sock, messageFrom, '', messageReceived)
+        await sendText(sock, messageFrom, text, messageReceived)
+        console.log(text);
     }
-    getResponse();
+    try{
+        await sendReaction(sock, messageFrom, '🤔', messageReceived)
+        await run();
+    } catch (error) {
+        await sendReaction(sock, messageFrom, '', messageReceived)
+        let text = `Desculpe-me, no momento não estou respondendo perguntas`
+        await sendText(sock, messageFrom, text, messageReceived)
+        console.error(error)
+      }
+    
 }
 
 module.exports = {

@@ -13,6 +13,7 @@ const { menu } = require('./defaultmessages');
 const { createSticker } = require('../utils/stickers');
 const addStickerMetaData = require('../utils/addStickerMetaData');
 const { downloadMediaYt } = require('../utils/mediayt');
+const { InkyIaAnswer } = require('../utils/iaanswers');
 
 async function processorMessage(sock, messageReceived, messageType) {
 
@@ -73,7 +74,7 @@ async function processorMessage(sock, messageReceived, messageType) {
             text = menu(pushName, dataFormatada, hora, minuto, segundo, currentPrefix)
             image = './src/assets/inky.jpg'
             //await sendText(sock, messageFrom, text, messageReceived)
-            await sendImage(sock, messageFrom, {url: image}, text, messageReceived)
+            await sendImage(sock, messageFrom, { url: image }, text, messageReceived)
         } else if (command == BOT_COMMANDS.STICKER || command == BOT_COMMANDS.STICKERABREV) {
 
             if (
@@ -161,6 +162,13 @@ async function processorMessage(sock, messageReceived, messageType) {
                 return
             }
             await downloadMediaYt(sock, messageFrom, args, command, messageReceived)
+        } else if (command == BOT_COMMANDS.INKY) {
+            if (args.length == 0) {
+                text = `Sou um bot, não um advinhador ;-;`
+                await sendText(sock, messageFrom, text, messageReceived)
+                return
+            }
+            await InkyIaAnswer(sock, messageFrom, args, messageReceived)
         }
         else {
             text = `Este comando não existe. Por favor, utilize ${currentPrefix}menu para ver os comandos disponíveis `
