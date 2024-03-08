@@ -1,28 +1,41 @@
 //Imports 
+
 const {
     sendText,
-    sendSticker,
-    sendImage,
-    sendReaction,
-    getMessageText,
 } = require('../utils/answers');
 
-const { configBot } = require('../config/config')
-const { BOT_COMMANDS } = require('../commands/commands');
-const { menu } = require('./defaultmessages');
-const { createSticker } = require('../utils/stickers');
-const addStickerMetaData = require('../utils/addStickerMetaData');
+const { menuFunc } = require('../utils/menu');
+const { stickers } = require('../utils/stickers');
+const { suggestion } = require('../utils/suggestion');
+const { bug } = require('../utils/bug')
 const { downloadMediaYt } = require('../utils/mediayt');
 const { InkyIaAnswer } = require('../utils/iaanswers');
+const { pingInky } = require('../utils/ping');
+
+const { botCommands } = require('../commands/commands');
+const { configBot } = require('../config/config');
+
 
 async function processorMessage(sock, messageReceived, messageType) {
+
+    //Constante booleana que verifica se a mensagem processada foi o host que enviou
+    const isFromMe = messageReceived.key.fromMe;
 
     //informações do usuário
     const messageFrom = messageReceived.key.remoteJid;
     const pushName = messageReceived.pushName;
+    const userIsGroup = messageFrom.endsWith("@g.us")
 
-    //mensagem recebida
-    const textMessage = getMessageText(messageReceived, messageType);
+    //Pegar texto
+    const messageTypes = {
+        conversation: messageReceived?.message?.conversation,
+        imageMessage: messageReceived?.message?.imageMessage?.caption,
+        videoMessage: messageReceived?.message?.videoMessage?.caption,
+        extendedTextMessage: messageReceived?.message?.extendedTextMessage?.text
+    }
+
+    //Constante com operador de coalescência nula que verifica se há valor falso na verificação da propriedade do objeto 'messsageTypes'
+    const textMessage = messageTypes[messageType] || "";
 
     //tratamentos de comandos e argumentos
     let isCommand = configBot.prefixes.includes(textMessage[0]) ? true : false;
@@ -37,10 +50,20 @@ async function processorMessage(sock, messageReceived, messageType) {
     isCommand ? await sock.readMessages([key]) : null;
 
     let currentPrefix = isCommand ? textMessage[0] : null;
-    const trat = isCommand ? textMessage.slice(1).trim().split(" ").map(word => word.toLowerCase()).join(" ").normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(" ")
-        : null;
-    let command = isCommand ? trat[0] : null
-    //console.log(command)
+
+    const trat =
+        isCommand ?
+            textMessage.slice(1)
+                .trim()
+                .split(" ")
+                .map(word => word.toLowerCase())
+                .join(" ")
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, "")
+                .split(" ")
+            : null;
+
+    let command = isCommand ? trat[0] : null;
 
     let args = isCommand ? textMessage.trim().split(/ +/).splice(1) : null;
 
@@ -52,129 +75,89 @@ async function processorMessage(sock, messageReceived, messageType) {
     }
 
     //data e hora
-    const dataAtual = new Date();
-    const dataFormatada = dataAtual.toLocaleDateString();
-    const horas = dataAtual.getHours();
-    const minutos = dataAtual.getMinutes();
-    const segundos = dataAtual.getSeconds();
 
-    const hora = horas < 10 ? '0' + horas : horas;
-    const minuto = minutos < 10 ? '0' + minutos : minutos;
-    const segundo = segundos < 10 ? '0' + segundos : segundos;
 
     //outros
-    const loadingSticker = '⌛'
+
     //Atualizar presença
 
-    configBot.isConsoleLog ? console.log('\nUsuário: ' + messageReceived.pushName + '\nTipo: ' + messageType + '\nMensagem: ' + textMessage) : null
+    const showConsoleLog = () => {
+
+        const messageTypes = {
+            conversation: 'a mensagem',
+            imageMessage: 'a imagem',
+            videoMessage: ' video',
+            stickerMessage: 'a figurinha',
+            audioMessage: ' audio',
+            documentMessage: ' documento',
+            contactMessage: ' contato',
+            extendedTextMessage: 'a mensagem extendida ou link',
+            locationMessage: 'a localizacao',
+            messageContextInfo: 'a enquete ou derivados'
+        }
+
+        messageTypeCurrent = messageTypes[messageType] || "";
+
+        showMessage = textMessage ? '\nMensagem: ' + textMessage : "";
+        console.log(
+            '\nUsuário: ' + pushName +
+            '\nId: ' + messageFrom +
+            '\nEnviou um' + messageTypeCurrent +
+            showMessage
+        )
+
+    }
+    configBot.isConsoleLog && !isFromMe ? showConsoleLog() : null;
+
+    const listCommands = {
+        menu: async () => { await menuFunc(sock, messageFrom, messageReceived, pushName, currentPrefix) },
+        sticker: async () => { await stickers(sock, messageFrom, messageReceived, pushName, messageType, command, currentPrefix) },
+        sugestao: async () => { await suggestion(sock, messageFrom, messageReceived, args) },
+        bug: async () => { await bug(sock, messageFrom, messageReceived, args) },
+        play_audio: async () => { await downloadMediaYt(sock, messageFrom, args, command, messageReceived) },
+        play_video: async () => { await downloadMediaYt(sock, messageFrom, args, command, messageReceived) },
+        inky: async () => { await InkyIaAnswer(sock, messageFrom, args, messageReceived) },
+        ping: async () => { await pingInky(sock, messageFrom, messageReceived) }
+    }
+    //Alias
+    //listCommands.m = listCommands.menu
+
+    //botCommands.ping.commands.includes(command) <-booleano
+
+    let commandFound = false;
 
     if (isCommand) {
-        if (command == BOT_COMMANDS.MENU) {
-            await sock.sendPresenceUpdate('composing', messageFrom);
-            text = menu(pushName, dataFormatada, hora, minuto, segundo, currentPrefix)
-            image = './src/assets/inky.jpg'
-            //await sendText(sock, messageFrom, text, messageReceived)
-            await sendImage(sock, messageFrom, { url: image }, text, messageReceived)
-        } else if (command == BOT_COMMANDS.STICKER || command == BOT_COMMANDS.STICKERABREV) {
-
-            if (
-                messageReceived.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage ||
-                messageReceived.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage ||
-                messageReceived.message?.imageMessage ||
-                messageReceived.message?.videoMessage
-            ) {
-                await sendReaction(sock, messageFrom, loadingSticker, messageReceived)
-                const directorySticker = await createSticker(messageReceived, messageType)
-
-                if (directorySticker == 'videolarge') {
-                    text = `Vídeo muito longo. Mande vídeos menores do que 10 segundos`
-                    await sendText(sock, messageFrom, text, messageReceived)
-                    await sendReaction(sock, messageFrom, '', messageReceived)
-                    return
+        for (const commandKey in botCommands) {
+            if (Object.prototype.hasOwnProperty.call(botCommands, commandKey)) {
+                const commandData = botCommands[commandKey];
+                // Verifica se a string command está presente em qualquer uma das arrays do comando
+                const foundInCommands = commandData.commands.includes(command);
+                const foundInFormatCommands = commandData.formatCommands ? commandData.formatCommands.includes(command) : false;
+                // Se a string estiver presente em alguma das arrays, imprime que foi encontrada
+                if (foundInCommands || foundInFormatCommands) {
+                    console.log(`A string '${command}' foi encontrada no comando '${commandKey}'.`);
+                    const execFunc = listCommands[commandKey]
+                    execFunc ? await execFunc() : await sendText(sock, messageFrom,  `Este comando está em desenvolvimento. Utilize ${currentPrefix}menu para ver os comandos disponíveis `, messageReceived);
+                    commandFound = true;
+                    break;
                 }
-
-                if (directorySticker) {
-
-                    const stickerMetaData = {
-                        packname: "Gerada por:\n↘ Inky Bot\n\n Contato do Bot:\n↘ +55 92 8532-0942",
-                        author: `Dono\n↘ Renny\n\nSolicitado:\n↘ ${pushName}`,
-                    };
-                    await addStickerMetaData(directorySticker, stickerMetaData)
-                    await sendSticker(sock, messageFrom, directorySticker, messageReceived)
-                    await sendReaction(sock, messageFrom, '', messageReceived)
-                } else {
-                    //console.log('Erro na produção do sticker')
-                    text = `Foi mal, não consegui gerar a figurinha. O erro foi reportado ao desenvolvedor`
-                    await sendText(sock, messageFrom, text, messageReceived)
-                    await sendReaction(sock, messageFrom, '', messageReceived)
-                }
-
-            } else {
-
-                if (messageReceived.message?.extendedTextMessage?.contextInfo?.quotedMessage?.stickerMessage) {
-                    //console.log('Marcou a figurinha com o comando s ou sticker')
-                    text = `Tu tá maluco doido kakaka querendo fazer uma figurinha de uma figurinha kakakakak. Use o comando em uma imagem ou vídeo`
-                    await sendText(sock, messageFrom, text, messageReceived)
-                    await sendReaction(sock, messageFrom, '', messageReceived)
-                } else if (messageReceived.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage) {
-                    text = `Tu tá maluco doido kakaka querendo fazer uma figurinha de um áudio kakakakak. Use o comando em uma imagem ou vídeo`
-                    await sendText(sock, messageFrom, text, messageReceived)
-                    await sendReaction(sock, messageFrom, '', messageReceived)
-                } else {
-                    //Não há midia
-                    //console.log('Não há nenhuma mídia para fazer a figurinha')
-                    text = `Você deve marcar a mídia ou postá-la com o comando ${currentPrefix}sticker ou ${currentPrefix}s 🤨`
-                    await sendText(sock, messageFrom, text, messageReceived)
-                    await sendReaction(sock, messageFrom, '', messageReceived)
-                }
-
             }
-
-        } else if (command == BOT_COMMANDS.GITHUB) {
-            await sock.sendPresenceUpdate('composing', messageFrom);
-            text = `Github do criador:\nhttps://github.com/Rennysoares/`
-            await sendText(sock, messageFrom, text, messageReceived)
-        } else if (command == BOT_COMMANDS.CRIADOR) {
-            await sock.sendPresenceUpdate('composing', messageFrom);
-            text = `wa.me/559295059178`
-            await sendText(sock, messageFrom, text, messageReceived)
-        } else if (command == BOT_COMMANDS.SUGESTAO) {
-            await sock.sendPresenceUpdate('composing', messageFrom);
-            if (args.length == 0) {
-                text = `Não irei conseguir me desenvolver com uma sugestão vazia :(`
-                await sendText(sock, messageFrom, text, messageReceived)
-                return
-            }
-            text = `Obrigado pelo apoio, sua opnião é muito importante para o meu desenvolvimento`
-            await sendText(sock, messageFrom, text, messageReceived)
-        } else if (command == BOT_COMMANDS.BUG) {
-            if (args.length == 0) {
-                text = `Não irei conseguir me desenvolver com uma sugestão de correção de bug vazia :(`
-                await sendText(sock, messageFrom, text, messageReceived)
-                return
-            }
-            text = `Obrigado pelo apoio, sua opnião é muito importante para o meu desenvolvimento`
-            await sendText(sock, messageFrom, text, messageReceived)
-        } else if (command == BOT_COMMANDS.PLAY_VIDEO || command == BOT_COMMANDS.PLAY_AUDIO) {
-            if (args.length == 0) {
-                text = `Sou um bot, não um advinhador ;-;`
-                await sendText(sock, messageFrom, text, messageReceived)
-                return
-            }
-            await downloadMediaYt(sock, messageFrom, args, command, messageReceived)
-        } else if (command == BOT_COMMANDS.INKY) {
-            if (args.length == 0) {
-                text = `Sou um bot, não um advinhador ;-;`
-                await sendText(sock, messageFrom, text, messageReceived)
-                return
-            }
-            await InkyIaAnswer(sock, messageFrom, args, messageReceived)
-        }
-        else {
-            text = `Este comando não existe. Por favor, utilize ${currentPrefix}menu para ver os comandos disponíveis `
-            await sendText(sock, messageFrom, text, messageReceived)
         }
     }
+
+    if (!commandFound && isCommand) {
+        await sendText(
+            sock,
+            messageFrom, 
+            `Este comando não existe. Utilize ${currentPrefix}menu para ver os comandos disponíveis `,
+            messageReceived);
+    }
+    /*
+    if (isCommand) {
+        console.log('é um comando')
+        
+    }
+    */
     await sock.sendPresenceUpdate('available', messageFrom);
 }
 

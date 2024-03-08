@@ -1,6 +1,7 @@
 const configBot = {
+    number: '559285320942',
     prefixes: ['.', '/', '!', '#', '+'],
-    isConsoleLog: false
+    isConsoleLog: true
 }
 module.exports = {
     configBot

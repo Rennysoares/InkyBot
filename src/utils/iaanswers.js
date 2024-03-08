@@ -2,6 +2,11 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { sendText, sendReaction } = require("./answers")
 async function InkyIaAnswer(sock, messageFrom, args, messageReceived) {
 
+    if (args.length == 0) {
+        text = `Sou um bot, não um advinhador ;-;`
+        await sendText(sock, messageFrom, text, messageReceived)
+        return
+    }
 
     apiKey = "AIzaSyAbkjAdYJGpd-OA_O6tYsj689yfIpYrgmU"
     // Access your API key as an environment variable (see "Set up your API key" above)

@@ -32,4 +32,4 @@ async function addStickerMetaData(mediaPath, metadata) {
   }
 }
 
-module.exports = addStickerMetaData;
+module.exports = {addStickerMetaData};

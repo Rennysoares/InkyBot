@@ -1,6 +1,6 @@
 /**
  * @license
- * InkyBot v0.3.1
+ * InkyBot v0.3.2
  * Copyright 2024 rennysoares and other contributors.
  * This code is released under the MIT license.
  * SPDX-License-Identifier: MIT
@@ -21,29 +21,20 @@ async function startInky() {
     const sock = await connectInky();
 
     sock.ev.on("messages.upsert", async ({ messages, type }) => {
-
         /** Capture the array received by the listener */
         const messageReceived = messages[0];
 
-        /**
-         * Will not process the message if the information received isn't the message property
-         */
+        /** Will not process the message if the information received isn't the message property */
 
         if (messageReceived.message) {
             
-            /**
-             * To get a message type
-             */
+            /** To get a message type */
             const messageType = Object.keys(messageReceived.message)[0];
 
-            /**
-             * If an incoming message is related to a status, it will not proceed with the commands
-             */
+            /** If an incoming message is related to a status, it will not proceed with the commands */
             if (messageReceived.key && messageReceived.key.remoteJid == "status@broadcast") return;
             
-            /**
-             * 
-             */
+            /** Here is the processing message */
             await processorMessage(sock, messageReceived, messageType);
         };
 

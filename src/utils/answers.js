@@ -1,5 +1,5 @@
 async function sendText(sock, messageFrom, text, quoted,) {
-  await sock.sendMessage(
+  return await sock.sendMessage(
     messageFrom, 
     { 
       text: text
@@ -47,20 +47,9 @@ async function sendVideo(sock, to, video, quoted) {
 }
 
 async function sendAudio(sock, to, audioUrl, quoted) {
-  await sock.sendMessage(to, { audio: { url: audioUrl }, mimetype: "audio/mpeg" },{ quoted })
+  await sock.sendMessage(to, { audio: { url: audioUrl }, mimetype: "audio/mp4" },{ quoted })
 }
 
-
-function getMessageText(messageInfo, messageType) {
-  const messageTypes = {
-    conversation: messageInfo?.message?.conversation,
-    imageMessage: messageInfo?.message?.imageMessage?.caption,
-    videoMessage: messageInfo?.message?.videoMessage?.caption,
-    extendedTextMessage: messageInfo?.message?.extendedTextMessage?.text
-  }
-
-  return messageTypes[messageType] || "";
-}
 
 module.exports = {
   sendText,
@@ -69,5 +58,4 @@ module.exports = {
   sendReaction,
   sendVideo,
   sendAudio,
-  getMessageText,
 };
