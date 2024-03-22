@@ -1,4 +1,3 @@
-//Imports 
 
 const {
     sendText,
@@ -11,20 +10,14 @@ const { bug } = require('../utils/bug')
 const { downloadMediaYt } = require('../utils/mediayt');
 const { InkyIaAnswer } = require('../utils/iaanswers');
 const { pingInky } = require('../utils/ping');
+const { downloads } = require('../utils/downloads');
 
-const { botCommands } = require('../commands/commands');
-const { configBot } = require('../config/config');
+const { botCommands } = require('./commands');
+const { botSettings } = require('../config/config');
 
+async function handlingMessages(sock, messageReceived) {
 
-async function processorMessage(sock, messageReceived, messageType) {
-
-    //Constante booleana que verifica se a mensagem processada foi o host que enviou
-    const isFromMe = messageReceived.key.fromMe;
-
-    //informações do usuário
-    const messageFrom = messageReceived.key.remoteJid;
-    const pushName = messageReceived.pushName;
-    const userIsGroup = messageFrom.endsWith("@g.us")
+    const messageType = Object.keys(messageReceived.message)[0];
 
     //Pegar texto
     const messageTypes = {
@@ -38,7 +31,29 @@ async function processorMessage(sock, messageReceived, messageType) {
     const textMessage = messageTypes[messageType] || "";
 
     //tratamentos de comandos e argumentos
-    let isCommand = configBot.prefixes.includes(textMessage[0]) ? true : false;
+    let isCommand = botSettings.prefixes.includes(textMessage[0]) ? true : false;
+    if (!isCommand) return;
+
+    //Constante booleana que verifica se a mensagem processada foi o host que enviou
+    const isFromMe = messageReceived.key.fromMe;
+
+    //informações do usuário
+    const messageFrom = messageReceived.key.remoteJid;
+    const pushName = messageReceived.pushName;
+    const userIsGroup = messageFrom.endsWith("@g.us");
+    let idUser = userIsGroup ? messageReceived?.key?.participant : messageFrom;
+
+    //Pegar informação do grupo
+    const groupData = userIsGroup ? await sock.groupMetadata(messageFrom) : "";
+    const groupMembers = userIsGroup ? groupData.participants : ""
+    const groupInfo = {
+        id: groupData.id,
+        title: groupData.subject,
+        description: groupData.desc,
+        groupOwnerId: groupData.owner,
+        groupSize: groupData.size
+    }
+    const admins = userIsGroup ? groupData.participants.filter(participant => participant.admin) : '';
 
     //Chave de identificação de mensagem e emissor
     const key = {
@@ -74,13 +89,6 @@ async function processorMessage(sock, messageReceived, messageType) {
         args = args.join(" ")
     }
 
-    //data e hora
-
-
-    //outros
-
-    //Atualizar presença
-
     const showConsoleLog = () => {
 
         const messageTypes = {
@@ -101,13 +109,13 @@ async function processorMessage(sock, messageReceived, messageType) {
         showMessage = textMessage ? '\nMensagem: ' + textMessage : "";
         console.log(
             '\nUsuário: ' + pushName +
-            '\nId: ' + messageFrom +
+            '\nId: ' + idUser +
             '\nEnviou um' + messageTypeCurrent +
             showMessage
         )
 
     }
-    configBot.isConsoleLog && !isFromMe ? showConsoleLog() : null;
+    botSettings.isConsoleLog && !isFromMe ? showConsoleLog() : null;
 
     const listCommands = {
         menu: async () => { await menuFunc(sock, messageFrom, messageReceived, pushName, currentPrefix) },
@@ -117,12 +125,9 @@ async function processorMessage(sock, messageReceived, messageType) {
         play_audio: async () => { await downloadMediaYt(sock, messageFrom, args, command, messageReceived) },
         play_video: async () => { await downloadMediaYt(sock, messageFrom, args, command, messageReceived) },
         inky: async () => { await InkyIaAnswer(sock, messageFrom, args, messageReceived) },
-        ping: async () => { await pingInky(sock, messageFrom, messageReceived) }
+        ping: async () => { await pingInky(sock, messageFrom, messageReceived) },
+        downloadvideo:  async () => { await downloads(sock, messageFrom, args, messageReceived) }
     }
-    //Alias
-    //listCommands.m = listCommands.menu
-
-    //botCommands.ping.commands.includes(command) <-booleano
 
     let commandFound = false;
 
@@ -135,9 +140,8 @@ async function processorMessage(sock, messageReceived, messageType) {
                 const foundInFormatCommands = commandData.formatCommands ? commandData.formatCommands.includes(command) : false;
                 // Se a string estiver presente em alguma das arrays, imprime que foi encontrada
                 if (foundInCommands || foundInFormatCommands) {
-                    console.log(`A string '${command}' foi encontrada no comando '${commandKey}'.`);
                     const execFunc = listCommands[commandKey]
-                    execFunc ? await execFunc() : await sendText(sock, messageFrom,  `Este comando está em desenvolvimento. Utilize ${currentPrefix}menu para ver os comandos disponíveis `, messageReceived);
+                    execFunc ? await execFunc() : await sendText(sock, messageFrom, `Este comando está em desenvolvimento. Utilize ${currentPrefix}menu para ver os comandos disponíveis `, messageReceived);
                     commandFound = true;
                     break;
                 }
@@ -148,7 +152,7 @@ async function processorMessage(sock, messageReceived, messageType) {
     if (!commandFound && isCommand) {
         await sendText(
             sock,
-            messageFrom, 
+            messageFrom,
             `Este comando não existe. Utilize ${currentPrefix}menu para ver os comandos disponíveis `,
             messageReceived);
     }
@@ -161,4 +165,4 @@ async function processorMessage(sock, messageReceived, messageType) {
     await sock.sendPresenceUpdate('available', messageFrom);
 }
 
-module.exports = processorMessage;
+module.exports = handlingMessages;

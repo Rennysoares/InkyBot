@@ -1,15 +1,16 @@
-
 const {
     makeWASocket,
     useMultiFileAuthState,
     DisconnectReason,
-    makeInMemoryStore
+    makeInMemoryStore,
 } = require('@whiskeysockets/baileys');
 
+const handlingMessages = require('../commands/handlingMessages');
 const pino = require('pino');
 const { Boom } = require('@hapi/boom');
 
 async function connectInky() {
+
     const auth = await useMultiFileAuthState("./src/temp/session");
     const sock = makeWASocket({
         printQRInTerminal: true,
@@ -37,16 +38,28 @@ async function connectInky() {
             console.log("Connection closed");
             const shouldReconnect = lastDisconnect.error instanceof Boom && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut;
             if (shouldReconnect) {
-                setTimeout(() => connectInky(), 5000); // Tentar reconectar após 5 segundos
+                setTimeout(() => connectInky(), 10000); // Tentar reconectar após 10 segundos
             }
         } else if (connection === "open") {
-            console.log("Bot connected");
+            console.log("Connected");
         } else if (connection === "connecting") {
             console.log("Connecting...");
         }
     });
+    
+    sock.ev.on("messages.upsert", async ({ messages, type }) => {
+        /** Capture the array received by the listener */
+        const messageReceived = messages[0];
+        /** Will not process the message if the information received isn't the message property */
 
-    return sock;
+        if (messageReceived.message) {
+            /** If an incoming message is related to a status, it will not proceed with the commands */
+            if (messageReceived.key && messageReceived.key.remoteJid == "status@broadcast") return;
+            
+            /** Here is the processing message */
+            await handlingMessages(sock, messageReceived);
+        };
+    });
 }
 
 module.exports = connectInky;

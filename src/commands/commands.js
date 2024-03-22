@@ -13,20 +13,7 @@ const botCommands = {
         description: 'Faça figurinhas de imagens e vídeos menores do que 10 segundos',
         tip: 'Use o comando fsticker ou fs com o prefixo para a figurinha não ficar esticado',
     },
-
-    sugestao: {
-        commands: ['sugestao'],
-        description: 'Envie sugestões com este comando, assim você contribui ao meu desenvolvimento',
-        argDesc: 'sua sugestão'
-    },
-
-    bug: {
-        commands: ['bug'],
-        description: 'Reporte bugs percebidos, assim recorrerei ao meu desenvolvedor',
-        argDesc: 'bug encontrado'
-    },
-
-
+    
     play_video: {
         commands: ['play_video'],
         description: 'Baixe videos do YouTube',
@@ -39,7 +26,6 @@ const botCommands = {
         argDesc: 'nome do video'
     },
 
-
     inky: {
         commands: ['inky'],
         description: 'Gere resposta inteligente a partir de sua pergunta',
@@ -49,7 +35,25 @@ const botCommands = {
     ping: {
         commands: ['ping'],
         description: 'Veja o meu tempo de resposta'
-    }
+    },
+
+    downloadvideo: {
+        commands: ['download', 'd', 'dl'],
+        description: 'Aqui você pode baixar vídeos do youtube, instagram e tiktok',
+        argDesc: 'link'
+    },
+
+    sugestao: {
+        commands: ['sugestao'],
+        description: 'Envie sugestões com este comando, assim você contribui ao meu desenvolvimento',
+        argDesc: 'sua sugestão'
+    },
+
+    bug: {
+        commands: ['bug'],
+        description: 'Reporte bugs percebidos, assim recorrerei ao meu desenvolvedor',
+        argDesc: 'bug encontrado'
+    },
 };
 
 module.exports = { botCommands };

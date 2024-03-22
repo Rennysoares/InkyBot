@@ -2,8 +2,10 @@ const {
     sendText,
     sendImage,
 } = require('./answers');
-const { configBot } = require('../config/config')
+
+const { botSettings } = require('../config/config')
 const { botCommands } = require('../commands/commands')
+
 async function menuFunc(sock, messageFrom, messageReceived, pushName, currentPrefix) {
 
     const date = new Date();
@@ -18,7 +20,7 @@ async function menuFunc(sock, messageFrom, messageReceived, pushName, currentPre
 
     let prefixes = ''
     let botName = '`Inky Bot v0.3.1 (beta)`'
-    configBot.prefixes.forEach((p) => { prefixes = prefixes + p + ' ' });
+    botSettings.prefixes.forEach((p) => { prefixes = prefixes + p + ' ' });
     let quote = '`'
     let commandInfo = '';
 
@@ -42,7 +44,7 @@ async function menuFunc(sock, messageFrom, messageReceived, pushName, currentPre
         const alternativeCommands = [...commandData.commands]; // Criando uma cópia da array original
         alternativeCommands.shift();
 
-        commandInfo += `${quote}${currentPrefix}${commandName}${quote}${commandData?.argDesc ? ' [' + commandData?.argDesc + ']' : ''}\n`;
+        commandInfo += `${quote}${currentPrefix}${commandData.commands[0]}${quote}${commandData?.argDesc ? ' [' + commandData?.argDesc + ']' : ''}\n`;
         commandInfo += `> ${commandData.description}\n`;
         commandInfo += `${commandData.commands.length > 1 ? '> Alternativos: ' + currentPrefix + alternativeCommands.join(' .') + '\n' : ''}`;
         commandInfo += `${commandData?.tip ? '> Dica: ' + commandData.tip + '\n' : ''}`;
@@ -51,9 +53,9 @@ async function menuFunc(sock, messageFrom, messageReceived, pushName, currentPre
 
     text =
 `
-╭───────────────────────╮ 
-│                ${botName}              
-╰───────────────────────╯
+╭──────────────────╮ 
+│      ${botName}              
+╰──────────────────╯
 Oi, ${pushName}! ${salutation}
 
 Hoje é *${formDate}*
@@ -67,8 +69,8 @@ ${commandInfo}
 :)`
 
     image = './src/assets/inky.jpg'
-    //await sendText(sock, messageFrom, text, messageReceived)
-    await sendImage(sock, messageFrom, { url: image }, text, messageReceived)
+    await sendText(sock, messageFrom, text, messageReceived)
+    //await sendImage(sock, messageFrom, { url: image }, text, messageReceived)
 }
 
 module.exports = {

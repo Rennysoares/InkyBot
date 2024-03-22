@@ -7,7 +7,6 @@
  */
 
 const connectInky = require('./src/connection/connection')
-const processorMessage = require('./src/commands/processor');
 
 /**
  * Socket configured to render the QR code for connection by node.
@@ -18,27 +17,12 @@ const processorMessage = require('./src/commands/processor');
 
 async function startInky() {
 
-    const sock = await connectInky();
-
-    sock.ev.on("messages.upsert", async ({ messages, type }) => {
-        /** Capture the array received by the listener */
-        const messageReceived = messages[0];
-
-        /** Will not process the message if the information received isn't the message property */
-
-        if (messageReceived.message) {
-            
-            /** To get a message type */
-            const messageType = Object.keys(messageReceived.message)[0];
-
-            /** If an incoming message is related to a status, it will not proceed with the commands */
-            if (messageReceived.key && messageReceived.key.remoteJid == "status@broadcast") return;
-            
-            /** Here is the processing message */
-            await processorMessage(sock, messageReceived, messageType);
-        };
-
-    });
+    try{
+        await connectInky()
+    } catch (error){
+        console.error('Execution error:', error)
+    }
+    
 }
 
 startInky();

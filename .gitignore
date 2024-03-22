@@ -1,6 +1,5 @@
 node_modules
 session
-indexbackup.js
 ./src/temp/history
 ./src/temp/media
 ./src/temp/session

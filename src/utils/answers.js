@@ -26,7 +26,7 @@ async function sendSticker(sock, messageFrom, sticker, quoted) {
 }
 
 async function sendImage(sock, messageFrom, image, caption = "", quoted) {
-  await sock.sendMessage(
+  return await sock.sendMessage(
     messageFrom, 
     { 
       image: image,
