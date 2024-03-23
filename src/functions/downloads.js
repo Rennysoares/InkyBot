@@ -29,9 +29,10 @@ async function fromYoutube(link, sock, messageFrom, messageReceived) {
         const data = await youtubedl(link);
         const video = await data.video['360p'].download();
         const gettedBuffer = await getBuffer(video)
-        fs.writeFileSync('./src/temp/media/video.mp4', gettedBuffer)
-        const videoDownloaded = fs.readFileSync('./src/temp/media/video.mp4')
+        fs.writeFileSync('./src/temp/video.mp4', gettedBuffer)
+        const videoDownloaded = fs.readFileSync('./src/temp/video.mp4')
         await sendVideo(sock, messageFrom, videoDownloaded, messageReceived);
+        fs.unlinkSync('./src/temp/video.mp4');
     } catch (error) {
         text = 'Ocorreu um erro no download do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)
@@ -46,11 +47,12 @@ async function fromInstagram(link, sock, messageFrom, messageReceived) {
         const data = await snapsave(link);
         console.log(data[0].url)
         const gettedBuffer = await getBuffer(data[0].url)
-        fs.writeFileSync('./src/temp/media/video.mp4', gettedBuffer)
-        const videoDownloaded = fs.readFileSync('./src/temp/media/video.mp4');
+        fs.writeFileSync('./src/temp/video.mp4', gettedBuffer)
+        const videoDownloaded = fs.readFileSync('./src/temp/video.mp4');
         isImage(gettedBuffer) ?
             await sendImage(sock, messageFrom, videoDownloaded, "", messageReceived) :
             await sendVideo(sock, messageFrom, videoDownloaded, messageReceived)
+        fs.unlinkSync('./src/temp/video.mp4');
     } catch (error) {
         text = 'Ocorreu um erro no download do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)
@@ -63,9 +65,10 @@ async function fromTikTok(link, sock, messageFrom, messageReceived) {
     try {
         const data = await tiktokdl(link)
         const gettedBuffer = await getBuffer(data.video.no_watermark)
-        fs.writeFileSync('./src/temp/media/video.mp4', gettedBuffer)
-        const videoDownloaded = fs.readFileSync('./src/temp/media/video.mp4')
+        fs.writeFileSync('./src/temp/video.mp4', gettedBuffer)
+        const videoDownloaded = fs.readFileSync('./src/temp/video.mp4')
         await sendVideo(sock, messageFrom, videoDownloaded, messageReceived);
+        fs.unlinkSync('./src/temp/video.mp4');
     } catch (error) {
         text = 'Ocorreu um erro no download do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)

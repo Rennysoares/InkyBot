@@ -1,16 +1,14 @@
 
-const {
-    sendText,
-} = require('../utils/answers');
+const { sendText } = require('../functions/answers');
 
-const { menuFunc } = require('../utils/menu');
-const { stickers } = require('../utils/stickers');
-const { suggestion } = require('../utils/suggestion');
-const { bug } = require('../utils/bug')
-const { downloadMediaYt } = require('../utils/mediayt');
-const { InkyIaAnswer } = require('../utils/iaanswers');
-const { pingInky } = require('../utils/ping');
-const { downloads } = require('../utils/downloads');
+const { menuFunc } = require('../functions/menu');
+const { stickers } = require('../functions/stickers');
+const { suggestion } = require('../functions/suggestion');
+const { bug } = require('../functions/bug')
+const { downloadMediaYt } = require('../functions/mediayt');
+const { InkyIaAnswer } = require('../functions/iaanswers');
+const { pingInky } = require('../functions/ping');
+const { downloads } = require('../functions/downloads');
 
 const { botCommands } = require('./commands');
 const { botSettings } = require('../config/config');
@@ -119,7 +117,7 @@ async function handlingMessages(sock, messageReceived) {
 
     const listCommands = {
         menu: async () => { await menuFunc(sock, messageFrom, messageReceived, pushName, currentPrefix) },
-        sticker: async () => { await stickers(sock, messageFrom, messageReceived, pushName, messageType, command, currentPrefix) },
+        sticker: async () => { await stickers(sock, messageFrom, messageReceived, messageType, command, pushName) },
         sugestao: async () => { await suggestion(sock, messageFrom, messageReceived, args) },
         bug: async () => { await bug(sock, messageFrom, messageReceived, args) },
         play_audio: async () => { await downloadMediaYt(sock, messageFrom, args, command, messageReceived) },

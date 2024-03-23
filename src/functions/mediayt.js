@@ -3,7 +3,7 @@ const yts = require('yt-search');
 const axios = require('axios');
 const fetch = (...args) =>
   import('node-fetch').then(({ default: fetch }) => fetch(...args));
-const { sendReaction, sendText, sendImage, sendAudio, sendVideo } = require('../utils/answers');
+const { sendReaction, sendText, sendImage, sendAudio, sendVideo } = require('../functions/answers');
 const fs = require("fs");
 const { youtubedl } = require('@bochilteam/scraper-sosmed');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
@@ -55,7 +55,7 @@ Status: *${stats}*`
     const thumb = await getBuffer(video.thumbnail);
     const randomId = `${Math.random().toString(36).substring(2, 10)}`;
 
-    fs.writeFileSync(`./src/temp/media/thumb_${randomId}.png`, thumb);
+    fs.writeFileSync(`./src/temp/thumb_${randomId}.png`, thumb);
 
     const imageInstance = await sendImage(sock, messageFrom, thumb, text('baixando ⌛'), messageReceived)
     await sendReaction(sock, messageFrom, '', messageReceived)
@@ -68,7 +68,7 @@ Status: *${stats}*`
     
     const downloadMedia = async () => {
 
-      const filePath = `./src/temp/media/file_${randomId}.${mediaTypes[command]}`;
+      const filePath = `./src/temp/file_${randomId}.${mediaTypes[command]}`;
 
       const data = await youtubedl(videoUrl);
       const video = command === "play_video" ? await data.video['360p'].download() : await data.audio['128kbps'].download()
@@ -90,8 +90,11 @@ Status: *${stats}*`
         });
         await sendReaction(sock, messageFrom, '', messageReceived);
         fs.unlinkSync(filePath);
-
+        fs.unlinkSync(`./src/temp/thumb_${randomId}.png`);
       } else if (command === "play_audio") {
+
+        const mp3FilePath = `./src/temp/files_${randomId}.mp3`;
+        const imagePath = `./src/temp/thumb_${randomId}.png`;
 
         const audio = () => {
 
@@ -102,8 +105,8 @@ Status: *${stats}*`
                 '-metadata', `title=${titleVideo}`,
               ])
               .on("error", (err) => reject(err))
-              .on("end", () => resolve(`./src/temp/media/files_${randomId}.mp3`))
-              .save(`./src/temp/media/files_${randomId}.mp3`)
+              .on("end", () => resolve(mp3FilePath))
+              .save(mp3FilePath)
           })
 
         }
@@ -116,8 +119,6 @@ Status: *${stats}*`
         const addmetadata = () => {
 
           return new Promise((resolve, reject) => {
-            const mp3FilePath = `./src/temp/media/files_${randomId}.mp3`;
-            const imagePath = `./src/temp/media/thumb_${randomId}.png`
 
             // Lendo o arquivo de imagem
             const imageBuffer = fs.readFileSync(imagePath);
@@ -143,8 +144,6 @@ Status: *${stats}*`
             } else {
               reject(console.error('Falha ao adicionar imagem ao arquivo MP3.'))
             }
-
-            fs.unlinkSync(imagePath);
           })
 
         }
@@ -160,13 +159,15 @@ Status: *${stats}*`
           edit: imageInstance.key
         });
         //await sendText(sock, messageFrom, "Baixado. Estamos Enviando. Aguarde... (pode demorar)", messageReceived)
-        await sendAudio(sock, messageFrom, `./src/temp/media/files_${randomId}.${mediaTypes[command]}`, messageReceived);
+        await sendAudio(sock, messageFrom, `./src/temp/files_${randomId}.${mediaTypes[command]}`, messageReceived);
         await sock.sendMessage(messageFrom, {
           image: imageInstance.message.imageMessage.mediaKey,
           caption: text('enviado ✅'),
           edit: imageInstance.key
         });
-  
+        fs.unlinkSync(filePath);
+        fs.unlinkSync(mp3FilePath);
+        fs.unlinkSync(imagePath);
 
         /*
         await sock.sendMessage(messageFrom, {

@@ -1,5 +1,6 @@
 const Jimp = require('jimp');
 const ping = require('ping');
+const fs = require('fs');
 const { sendImage, sendReaction, sendText } = require('./answers')
 // Carrega a imagem
 
@@ -8,7 +9,7 @@ async function pingInky(sock, messageFrom, quoted) {
     try {
 
         const randomId = `${Math.random().toString(36).substring(2, 10)}`;
-        const filePathOut = `./src/temp/media/ping_${randomId}.png`;
+        const filePathOut = `./src/temp/ping_${randomId}.png`;
 
         let pingRes = '';
         // Endereço IP ou nome de host para pingar
@@ -22,7 +23,6 @@ async function pingInky(sock, messageFrom, quoted) {
                 console.error('Erro ao executar o ping:', err);
             });
         if (!pingRes) throw new Error('Ping não achado')
-
         async function addTextToImage() {
             try {
                 const [font1, font2, font3] = await Promise.all([
@@ -92,6 +92,7 @@ async function pingInky(sock, messageFrom, quoted) {
         await addTextToImage() /
             await sendImage(sock, messageFrom, { url: filePathOut }, "Ping do host é " + pingRes, quoted)
         await sendReaction(sock, messageFrom, '', quoted)
+        fs.unlinkSync(filePathOut);
     } catch (e) {
         await sendReaction(sock, messageFrom, '', quoted)
         await sendText(sock, messageFrom, 'Não foi possível gerar o ping :(', quoted)

@@ -1,11 +1,11 @@
 const {
     sendText,
-} = require('../utils/answers');
+} = require('../functions/answers');
 
-async function suggestion(sock, messageFrom, messageReceived, args) {
+async function bug(sock, messageFrom, messageReceived, args) {
     await sock.sendPresenceUpdate('composing', messageFrom);
     if (args.length == 0) {
-        text = `Não irei conseguir me desenvolver com uma sugestão vazia :(`
+        text = `Não irei conseguir me desenvolver com uma sugestão de correção de bug vazia :(`
         await sendText(sock, messageFrom, text, messageReceived)
         return
     }
@@ -13,4 +13,4 @@ async function suggestion(sock, messageFrom, messageReceived, args) {
     await sendText(sock, messageFrom, text, messageReceived)
 }
 
-module.exports = { suggestion };
+module.exports = { bug };

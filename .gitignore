@@ -1,5 +1,3 @@
 node_modules
-session
-./src/temp/history
-./src/temp/media
-./src/temp/session
+./src/temp/media/*
+./src/session
