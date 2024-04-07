@@ -19,7 +19,7 @@ async function menuFunc(sock, messageFrom, messageReceived, pushName, currentPre
     const second = seconds < 10 ? '0' + seconds : seconds;
 
     let prefixes = ''
-    let botName = '`Inky Bot v0.3.1 (beta)`'
+    let botName = '`Inky Bot v0.4.2 (beta)`'
     botSettings.prefixes.forEach((p) => { prefixes = prefixes + p + ' ' });
     let quote = '`'
     let commandInfo = '';

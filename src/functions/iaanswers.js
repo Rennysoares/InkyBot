@@ -1,5 +1,6 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { sendText, sendReaction } = require("./answers")
+const { sendText, sendReaction } = require("./answers");
+const { botSettings } = require("../config/config")
 async function InkyIaAnswer(sock, messageFrom, args, messageReceived) {
 
     if (args.length == 0) {
@@ -8,7 +9,7 @@ async function InkyIaAnswer(sock, messageFrom, args, messageReceived) {
         return
     }
 
-    apiKey = "AIzaSyAbkjAdYJGpd-OA_O6tYsj689yfIpYrgmU"
+    apiKey = botSettings.geminiApiKey
     // Access your API key as an environment variable (see "Set up your API key" above)
     const genAI = new GoogleGenerativeAI(apiKey);
 
