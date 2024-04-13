@@ -1,8 +1,8 @@
 
-
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
 
-
+ffmpeg.setFfmpegPath(ffmpegPath);
 const fs = require('fs');
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const webp = require("node-webpmux");
@@ -41,7 +41,7 @@ async function stickers(sock, messageFrom, messageReceived, messageType, command
         await img.save(file);
         }
     }
-    const getFileBufferFromWhatsapp = async (mediaKey, mediaType) => {
+    const getFileBuffer = async (mediaKey, mediaType) => {
         const stream = await downloadContentFromMessage(mediaKey, mediaType);
         const chunks = [];
 
@@ -70,7 +70,7 @@ async function stickers(sock, messageFrom, messageReceived, messageType, command
             const filePathIn = `./src/temp/file_${randomId}.${isVideo ? 'mp4' : 'png'}`;
             const filePathOut = `./src/temp/file_${randomId}.webp`;
             
-            const buffer = await getFileBufferFromWhatsapp(mediaKey, mediaType);
+            const buffer = await getFileBuffer(mediaKey, mediaType);
             fs.writeFileSync(filePathIn, buffer);
             
             const options = formatCommands.includes(command) ?

@@ -2,7 +2,7 @@ const botSettings = {
     number: '559285320942',
     prefixes: ['.', '/', '!', '#', '+'],
     isConsoleLog: true,
-    geminiApiKey: "API_KEY_HERE"
+    geminiApiKey: "AIzaSyAbkjAdYJGpd-OA_O6tYsj689yfIpYrgmU"
 }
 module.exports = {
     botSettings
