@@ -2,10 +2,12 @@ const axios = require('axios');
 const fs = require('fs');
 const imageType = require('image-type');
 const fetch = (...args) =>
-  import('node-fetch').then(({ default: fetch }) => fetch(...args));
+    import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const ytcore = require("ytdl-core")
 const { youtubedl, tiktokdl } = require('@bochilteam/scraper-sosmed');
 const { snapsave, savefrom } = require('@bochilteam/scraper');
 const { sendText, sendReaction, sendVideo, sendImage } = require("./answers");
+const { resolve } = require('path');
 
 function isImage(buffer) {
     const type = imageType(buffer);
@@ -14,25 +16,42 @@ function isImage(buffer) {
 
 const getBuffer = async (url) => {
     let response = await fetch(url, {
-      method: "get",
-      body: null,
+        method: "get",
+        body: null,
     });
-  
+
     let media = await response.arrayBuffer();
     const nodeBuffer = Buffer.from(media);
     return nodeBuffer;
-  };
-  
+};
+
 
 async function fromYoutube(link, sock, messageFrom, messageReceived) {
     try {
-        const data = await youtubedl(link);
-        const video = await data.video['360p'].download();
-        const gettedBuffer = await getBuffer(video)
-        fs.writeFileSync('./src/temp/video.mp4', gettedBuffer)
-        const videoDownloaded = fs.readFileSync('./src/temp/video.mp4')
-        await sendVideo(sock, messageFrom, videoDownloaded, messageReceived);
-        fs.unlinkSync('./src/temp/video.mp4');
+        return new Promise((resolve, reject) => {
+            try {
+                const videoStream = ytcore(link, { filter: "audioandvideo" });
+                videoStream.on("info", () => {
+                    const randomId = `${Math.random().toString(36).substring(2, 10)}`;
+                    const filePath = `./src/temp/file_${randomId}.mp4`;
+
+                    const videoWriteStream = fs.createWriteStream(filePath);
+                    videoStream.pipe(videoWriteStream);
+
+                    videoWriteStream.on("finish", async () => {
+                        await sendVideo(sock, messageFrom, { url: filePath }, messageReceived);
+                        fs.unlinkSync(filePath);
+                        resolve("finished");
+                    })
+
+                    //fs.unlinkSync(`./src/temp/thumb_${randomId}.png`);
+
+                });
+            } catch(e){
+                reject(e);
+            }
+            
+        })
     } catch (error) {
         text = 'Ocorreu um erro no download do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)

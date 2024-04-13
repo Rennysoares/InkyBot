@@ -25,14 +25,17 @@ const getBuffer = async (url) => {
 const downloadMediaYt = async (sock, messageFrom, args, command, messageReceived) => {
 
   const videoName = args
+  const mediaTypes = {
+    play_video: "mp4",
+    play_audio: "mp3"
+  };
 
   try {
 
-    await sendReaction(sock, messageFrom, '🔎', messageReceived)
+    await sendReaction(sock, messageFrom, '🔎', messageReceived);
+
     const response = await ytsearch(videoName)
     const video = response.videos[0]
-
-
     const titleVideo = video.title
     const durationVideo = video.timestamp
     const canalVideo = video.author.name
@@ -48,60 +51,46 @@ Status: *${stats}*`
       )
     }
 
-
     const thumb = await getBuffer(video.thumbnail);
     const randomId = `${Math.random().toString(36).substring(2, 10)}`;
+    const filePath = `./src/temp/file_${randomId}.${mediaTypes[command]}`;
+    const filePathImage = `./src/temp/thumb_${randomId}.png`;
+    fs.writeFileSync(filePathImage, thumb);
+    const imageInstance = await sendImage(sock, messageFrom, thumb, text('baixando ⌛'), messageReceived);
+    fs.unlinkSync(filePathImage);
 
-    fs.writeFileSync(`./src/temp/thumb_${randomId}.png`, thumb);
-
-    const imageInstance = await sendImage(sock, messageFrom, thumb, text('baixando ⌛'), messageReceived)
-    await sendReaction(sock, messageFrom, '', messageReceived)
-
-    //Media download
-    const mediaTypes = {
-      play_video: "mp4",
-      play_audio: "mp3"
-    };
+    await sendReaction(sock, messageFrom, '', messageReceived);
 
     const downloadMedia = async () => {
 
       const videoStream = ytcore(videoUrl, { filter: "audioandvideo" });
 
       videoStream.on("info", () => {
-        const randomId = `${Math.random().toString(36).substring(2, 10)}`;
-        const filePath = `./src/temp/file_${randomId}.${mediaTypes[command]}`;
 
         const videoWriteStream = fs.createWriteStream(filePath);
         videoStream.pipe(videoWriteStream);
 
         videoWriteStream.on("finish", async () => {
+
+          await sock.sendMessage(messageFrom, {
+            image: imageInstance.message.imageMessage.mediaKey,
+            caption: text('enviando📤'),
+            edit: imageInstance.key
+          });
+
           if (command === "play_video") {
-            await sock.sendMessage(messageFrom, {
-              image: imageInstance.message.imageMessage.mediaKey,
-              caption: text('enviando📤'),
-              edit: imageInstance.key
-            });
             await sendVideo(sock, messageFrom, {url: filePath}, messageReceived);
-            await sock.sendMessage(messageFrom, {
-              image: imageInstance.message.imageMessage.mediaKey,
-              caption: text('enviado ✅'),
-              edit: imageInstance.key
-            });
-            fs.unlinkSync(filePath);
           } else if (command === "play_audio") {
-            await sock.sendMessage(messageFrom, {
-              image: imageInstance.message.imageMessage.mediaKey,
-              caption: text('enviando📤'),
-              edit: imageInstance.key
-            });
             await sendAudio(sock, messageFrom, filePath, messageReceived);
-            await sock.sendMessage(messageFrom, {
-              image: imageInstance.message.imageMessage.mediaKey,
-              caption: text('enviado ✅'),
-              edit: imageInstance.key
-            });
-            fs.unlinkSync(filePath);
           }
+
+          await sock.sendMessage(messageFrom, {
+            image: imageInstance.message.imageMessage.mediaKey,
+            caption: text('enviado ✅'),
+            edit: imageInstance.key
+          });
+          
+          fs.unlinkSync(filePath);
         });
       });
 

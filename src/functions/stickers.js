@@ -136,6 +136,9 @@ async function stickers(sock, messageFrom, messageReceived, messageType, command
         } else if (messageReceived.message?.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage) {
             text = `Tu tá maluco doido kakaka querendo fazer uma figurinha de um áudio kakakakak. Use o comando em uma imagem ou vídeo`
             await sendText(sock, messageFrom, text, messageReceived)
+        } else if (messageReceived?.message?.extendedTextMessage?.text) {
+            text = `Tu tá maluco doido kakaka querendo fazer uma figurinha de um texto kakakakak. Use o comando em uma imagem ou vídeo`
+            await sendText(sock, messageFrom, text, messageReceived)
         } else {
             //Não há midia
             //console.log('Não há nenhuma mídia para fazer a figurinha')
