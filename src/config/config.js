@@ -1,5 +1,5 @@
 const botSettings = {
-    number: '559285320942',
+    number: 'YOUR_NUMBER_HERE',
     prefixes: ['.', '/', '!', '#', '+'],
     isConsoleLog: true,
     geminiApiKey: "API_KEY_HERE"
