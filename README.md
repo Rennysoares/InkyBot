@@ -21,5 +21,6 @@ Tip: use a flag -pairing-code para conectar via código de emparelhamento
 ```bash
 node index -pairing-code
 ```
-##Para Android
+## Para Android
 Em desenvolvimento
+
