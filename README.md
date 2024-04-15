@@ -2,7 +2,7 @@
 Seja bem vindo(a) ao repositório do InkyBot
 Para instalar o InkyBot, você precisa fazer alguns processos:
 
-##Para pc
+## Para pc
 Instale o Node.js
 
 1. Clone meu repositório
