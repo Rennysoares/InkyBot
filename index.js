@@ -1,18 +1,15 @@
 /**
  * @license
- * InkyBot v0.4.3
+ * InkyBot v0.6.0
  * Copyright 2024 rennysoares and other contributors.
  * This code is released under the MIT license.
  * SPDX-License-Identifier: MIT
  */
 
-const connectInky = require('./src/connection/connection')
+import connectInky from './src/connection.js';
 
 /**
- * Socket configured to render the QR code for connection by node.
- * 
- * TODO: Thought the 'src/config/config.js' file, create a boolean key
- * in the 'configBot' constant for session creation by pairing code.
+ * Socket configured to render the QR code or pairing code.
  */
 
 async function startInky() {

@@ -1,13 +1,13 @@
-const axios = require('axios');
-const fs = require('fs');
-const imageType = require('image-type');
+import axios from 'axios';
+import fs from 'fs';
+import imageType from 'image-type';
 const fetch = (...args) =>
     import('node-fetch').then(({ default: fetch }) => fetch(...args));
-const ytcore = require("ytdl-core")
-const { youtubedl, tiktokdl } = require('@bochilteam/scraper-sosmed');
-const { snapsave, savefrom } = require('@bochilteam/scraper');
-const { sendText, sendReaction, sendVideo, sendImage } = require("./answers");
-const { resolve } = require('path');
+import ytcore from "ytdl-core";
+import { youtubedl, tiktokdl } from '@bochilteam/scraper-sosmed';
+import { snapsave, savefrom } from '@bochilteam/scraper';
+import { sendText, sendReaction, sendVideo, sendImage } from "./answers.js";
+
 
 function isImage(buffer) {
     const type = imageType(buffer);
@@ -53,7 +53,7 @@ async function fromYoutube(link, sock, messageFrom, messageReceived) {
             
         })
     } catch (error) {
-        text = 'Ocorreu um erro no download do link. Tente novamente'
+        const text = 'Ocorreu um erro no download do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)
         console.error("Erro em relação ao download:", error);
         return null;
@@ -73,7 +73,7 @@ async function fromInstagram(link, sock, messageFrom, messageReceived) {
             await sendVideo(sock, messageFrom, videoDownloaded, messageReceived)
         fs.unlinkSync('./src/temp/video.mp4');
     } catch (error) {
-        text = 'Ocorreu um erro no download do link. Tente novamente'
+        const text = 'Ocorreu um erro no download do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)
         console.error("Erro em relação ao download:", error);
         return null;
@@ -89,7 +89,7 @@ async function fromTikTok(link, sock, messageFrom, messageReceived) {
         await sendVideo(sock, messageFrom, videoDownloaded, messageReceived);
         fs.unlinkSync('./src/temp/video.mp4');
     } catch (error) {
-        text = 'Ocorreu um erro no download do link. Tente novamente'
+        const text = 'Ocorreu um erro no download do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)
         console.error("Erro em relação ao download:", error);
         return null;
@@ -101,17 +101,17 @@ async function fromFacebook(link, sock, messageFrom, messageReceived) {
         const data = await savefrom(link)
         console.log(data)
     } catch (error) {
-        text = 'Ocorreu um erro no download do link. Tente novamente'
+        const text = 'Ocorreu um erro no download do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)
         console.error("Erro em relação ao download:", error);
         return null;
     }
 }
 
-async function downloads(sock, messageFrom, args, messageReceived) {
+export async function downloads(sock, messageFrom, args, messageReceived) {
 
-    if (args.length == 0) {
-        text = `Sou um bot, não um advinhador de links ;-;`
+    if (!args) {
+        const text = `Não esqueça do link`
         await sendText(sock, messageFrom, text, messageReceived)
         return
     }
@@ -135,7 +135,7 @@ async function downloads(sock, messageFrom, args, messageReceived) {
     }
 
     if (!link.match(/^https?:\/\/.+/)) {
-        text = `Verifique se inseriu o link corretamente (link inválido)`
+        const text = `Verifique se inseriu o link corretamente (link inválido)`
         await sendText(sock, messageFrom, text, messageReceived)
         return;
     }
@@ -154,13 +154,13 @@ async function downloads(sock, messageFrom, args, messageReceived) {
 
     } catch (error) {
         await sendReaction(sock, messageFrom, '', messageReceived)
-        text = 'Ocorreu um erro no processamento do link. Tente novamente'
+        const text = 'Ocorreu um erro no processamento do link. Tente novamente'
         await sendText(sock, messageFrom, text, messageReceived)
         console.error("Erro em relação ao processamento:", error);
     }
 }
 
-module.exports = { downloads }
+
 
 
 

@@ -1,12 +1,12 @@
-const {
+import {
     sendText,
     sendImage,
-} = require('./answers');
+} from './answers.js';
 
-const { botSettings } = require('../config/config')
-const { botCommands } = require('../commands/commands')
+import { botSettings } from '../config.js';
+import { botCommands } from '../commands.js';
 
-async function menuFunc(sock, messageFrom, messageReceived, pushName, currentPrefix) {
+export async function menuFunc(params) {
 
     const date = new Date();
     const formDate = date.toLocaleDateString();
@@ -19,7 +19,7 @@ async function menuFunc(sock, messageFrom, messageReceived, pushName, currentPre
     const second = seconds < 10 ? '0' + seconds : seconds;
 
     let prefixes = ''
-    let botName = '`Inky Bot v0.4.3 (beta)`'
+    let botName = '`Inky Bot v0.6.0 (beta)`'
     botSettings.prefixes.forEach((p) => { prefixes = prefixes + p + ' ' });
     let quote = '`'
     let commandInfo = '';
@@ -41,38 +41,35 @@ async function menuFunc(sock, messageFrom, messageReceived, pushName, currentPre
     // Iterando sobre o objeto botCommands usando forEach
     Object.entries(botCommands).forEach(([commandName, commandData]) => {
 
+        if(commandData.commands[0] == 'menu'){
+            return
+        }
         const alternativeCommands = [...commandData.commands]; // Criando uma cópia da array original
         alternativeCommands.shift();
 
-        commandInfo += `${quote}${currentPrefix}${commandData.commands[0]}${quote}${commandData?.argDesc ? ' [' + commandData?.argDesc + ']' : ''}\n`;
+        commandInfo += `${quote}${params.currentPrefix}${commandData.commands[0]}${quote}${commandData?.argDesc ? ' _' + commandData?.argDesc + '_' : ''}\n`;
+        /**
         commandInfo += `> ${commandData.description}\n`;
         commandInfo += `${commandData.commands.length > 1 ? '> Alternativos: ' + currentPrefix + alternativeCommands.join(' .') + '\n' : ''}`;
         commandInfo += `${commandData?.tip ? '> Dica: ' + commandData.tip + '\n' : ''}`;
         commandInfo += '\n';
+         */
+        
     });
 
-    text =
+    const text =
 `
 ╭──────────────────╮ 
 │      ${botName}              
 ╰──────────────────╯
-Oi, ${pushName}! ${salutation}
+Oi, ${params.pushName}! ${salutation}
 
-Hoje é *${formDate}*
-Agora são *${hour}:${minute}:${second}* (GMT-4)
-
-Prefixos Disponíveis: [ ${prefixes}]  
-
-Meus comandos:
+Aqui os meus comandos:
 
 ${commandInfo}
 :)`
 
-    image = './src/assets/inky.jpg'
-    await sendText(sock, messageFrom, text, messageReceived)
-    //await sendImage(sock, messageFrom, { url: image }, text, messageReceived)
-}
-
-module.exports = {
-    menuFunc,
+    const image = './src/assets/inky.jpg'
+    //await sendText(sock, messageFrom, text, messageReceived)
+    await sendImage(params.sock, params.messageFrom, { url: image }, text, params.messageReceived)
 }

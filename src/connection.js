@@ -1,19 +1,20 @@
-const {
+import {
     makeWASocket,
     useMultiFileAuthState,
     DisconnectReason,
     makeInMemoryStore,
-} = require('@whiskeysockets/baileys');
-const inquirer = require("inquirer")
-const handlingMessages = require('../commands/handlingMessages');
-const pino = require('pino');
-const { Boom } = require('@hapi/boom');
+} from '@whiskeysockets/baileys';
+import inquirer from "inquirer";
+import handlingMessages from './handlingMessages.js';
+import pino from 'pino';
+import Boom from '@hapi/boom';
 
 const usePairingCode = process.argv.includes("-pairing-code");
 
-async function connectInky() {
+export default async function connectInky() {
 
     const auth = await useMultiFileAuthState("./src/session");
+    
     const sock = makeWASocket({
         printQRInTerminal: !usePairingCode,
         mobile: false,
@@ -60,4 +61,3 @@ async function connectInky() {
     });
 }
 
-module.exports = connectInky;

@@ -1,10 +1,10 @@
-const Jimp = require('jimp');
-const ping = require('ping');
-const fs = require('fs');
-const { sendImage, sendReaction, sendText } = require('./answers')
+import Jimp from 'jimp';
+import ping from 'ping';
+import fs from 'fs';
+import { sendImage, sendReaction, sendText } from './answers.js';
 // Carrega a imagem
 
-async function pingInky(sock, messageFrom, quoted) {
+export async function pingInky(sock, messageFrom, quoted) {
     await sendReaction(sock, messageFrom, '⌛', quoted)
     try {
 
@@ -101,5 +101,4 @@ async function pingInky(sock, messageFrom, quoted) {
 
 }
 
-module.exports = { pingInky }
 
