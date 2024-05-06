@@ -4,8 +4,8 @@ import fs from 'fs';
 import { sendImage, sendReaction, sendText } from './answers.js';
 // Carrega a imagem
 
-export async function pingInky(sock, messageFrom, quoted) {
-    await sendReaction(sock, messageFrom, '⌛', quoted)
+export async function pingInky(params) {
+    await sendReaction(params.sock, params.messageFrom, '⌛', params.messageReceived)
     try {
 
         const randomId = `${Math.random().toString(36).substring(2, 10)}`;
@@ -36,7 +36,7 @@ export async function pingInky(sock, messageFrom, quoted) {
 
                 const text1 = "Ping";
                 const text2 = pingRes;
-                const text3 = "Inky Bot © - Solicitado por " + quoted.pushName
+                const text3 = "Inky Bot © - Solicitado por " + params.pushName
 
                 // Obtém a largura e altura da imagem
                 const imageWidth = image.bitmap.width;
@@ -90,12 +90,12 @@ export async function pingInky(sock, messageFrom, quoted) {
             }
         }
         await addTextToImage() /
-            await sendImage(sock, messageFrom, { url: filePathOut }, "Ping do host é " + pingRes, quoted)
-        await sendReaction(sock, messageFrom, '', quoted)
+            await sendImage(params.sock, params.messageFrom, { url: filePathOut }, "Ping do host é " + pingRes, params.messageReceived)
+        await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
         fs.unlinkSync(filePathOut);
     } catch (e) {
-        await sendReaction(sock, messageFrom, '', quoted)
-        await sendText(sock, messageFrom, 'Não foi possível gerar o ping :(', quoted)
+        await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
+        await sendText(params.sock, params.messageFrom, 'Não foi possível gerar o ping :(', params.messageReceived)
         console.log(e)
     }
 

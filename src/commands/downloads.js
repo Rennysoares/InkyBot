@@ -108,35 +108,35 @@ async function fromFacebook(link, sock, messageFrom, messageReceived) {
     }
 }
 
-export async function downloads(sock, messageFrom, args, messageReceived) {
+export async function downloads(params, messageReceived) {
 
-    if (!args) {
+    if (!params.args) {
         const text = `Não esqueça do link`
-        await sendText(sock, messageFrom, text, messageReceived)
+        await sendText(params.sock, params.messageFrom, text, params.messageReceived)
         return
     }
 
-    let link = args;
+    let link = params.args;
 
     const suportLinks = {
         'www.instagram.com': {
             plataform: 'instagram',
-            execFunc: async () => { await fromInstagram(args, sock, messageFrom, messageReceived) }
+            execFunc: async () => { await fromInstagram(params.args, params.sock, params.messageFrom, params.messageReceived) }
         },
         'youtu.be': {
             plataform: 'youtube',
-            execFunc: async () => { await fromYoutube(args, sock, messageFrom, messageReceived) }
+            execFunc: async () => { await fromYoutube(params.args, params.sock, params.messageFrom, params.messageReceived) }
         },
         'vm.tiktok.com': {
             plataform: 'tiktok',
-            execFunc: async () => { await fromTikTok(args, sock, messageFrom, messageReceived) }
+            execFunc: async () => { await fromTikTok(params.args, params.sock, params.messageFrom, params.messageReceived) }
         },
 
     }
 
     if (!link.match(/^https?:\/\/.+/)) {
         const text = `Verifique se inseriu o link corretamente (link inválido)`
-        await sendText(sock, messageFrom, text, messageReceived)
+        await sendText(params.sock, params.messageFrom, text, params.messageReceived)
         return;
     }
 
@@ -144,18 +144,18 @@ export async function downloads(sock, messageFrom, args, messageReceived) {
         const url = new URL(link);
         const hostname = url.hostname;
         if (suportLinks[hostname]) {
-            await sendReaction(sock, messageFrom, '⌛', messageReceived)
+            await sendReaction(params.sock, params.messageFrom, '⌛', params.messageReceived)
             await suportLinks[hostname].execFunc();
-            await sendReaction(sock, messageFrom, '', messageReceived)
+            await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
         } else {
-            await sendReaction(sock, messageFrom, '', messageReceived)
+            await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
             console.log('Link não suportado no momento')
         }
 
     } catch (error) {
-        await sendReaction(sock, messageFrom, '', messageReceived)
+        await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
         const text = 'Ocorreu um erro no processamento do link. Tente novamente'
-        await sendText(sock, messageFrom, text, messageReceived)
+        await sendText(params.sock, params.messageFrom, text, params.messageReceived)
         console.error("Erro em relação ao processamento:", error);
     }
 }

@@ -2,11 +2,11 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { sendText, sendReaction } from "./answers.js";
 import { botSettings } from "../config.js";
 
-export async function InkyIaAnswer(sock, messageFrom, args, messageReceived) {
+export async function InkyIaAnswer(params) {
 
-    if (args.length == 0) {
+    if (!params.args) {
         text = `Sou um bot, não um advinhador ;-;`
-        await sendText(sock, messageFrom, text, messageReceived)
+        await sendText(params.sock, params.messageFrom, text, params.messageReceived)
         return
     }
 
@@ -18,22 +18,22 @@ export async function InkyIaAnswer(sock, messageFrom, args, messageReceived) {
         // For text-only input, use the gemini-pro model
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-        const prompt = args
+        const prompt = params.args
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
-        await sendReaction(sock, messageFrom, '', messageReceived)
-        await sendText(sock, messageFrom, text, messageReceived)
+        await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
+        await sendText(params.sock, params.messageFrom, text, params.messageReceived)
         console.log(text);
     }
     try{
-        await sendReaction(sock, messageFrom, '🤔', messageReceived)
+        await sendReaction(params.sock, params.messageFrom, '🤔', params.messageReceived)
         await run();
     } catch (error) {
-        await sendReaction(sock, messageFrom, '', messageReceived)
+        await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
         let text = `Desculpe-me, no momento não estou respondendo perguntas`
-        await sendText(sock, messageFrom, text, messageReceived)
+        await sendText(params.sock, params.messageFrom, text, params.messageReceived)
         console.error(error)
       }
     

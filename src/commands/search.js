@@ -3,26 +3,26 @@ import { botSettings } from "../config.js";
 
 const key = botSettings.customSearchKey
 
-export async function search(sock, messageFrom, args, messageReceived) {
+export async function search(params) {
 
-    if (!args) {
+    if (!params.args) {
         const text = "Não existe pesquisa sem a pesquisa. Informe o que você quer pesquisar"
-        await sock.sendMessage(
-            messageFrom,
+        await params.sock.sendMessage(
+            params.messageFrom,
             {
                 text: text
             },
             {
-                messageReceived
+                quoted: params.messageReceived
             }
         );
         return
     }
 
-    await sock.sendMessage(messageFrom, { react: { text: "🔎", key: messageReceived.key } })
+    await params.sock.sendMessage(params.messageFrom, { react: { text: "🔎", key: params.messageReceived.key } })
     try {
 
-        let url = `https://www.googleapis.com/customsearch/v1?key=${key}&cx=f3328827f6dee4617&q=${args}`;
+        let url = `https://www.googleapis.com/customsearch/v1?key=${key}&cx=f3328827f6dee4617&q=${params.args}`;
 
         const getResponse = async () => {
             let response = await fetch(url, {
@@ -44,28 +44,28 @@ export async function search(sock, messageFrom, args, messageReceived) {
         };
 
         let textRes = await getResponse();
-        await sock.sendMessage(
-            messageFrom,
+        await params.sock.sendMessage(
+            params.messageFrom,
             {
                 text: textRes
             },
             {
-                messageReceived
+                quoted: params.messageReceived
             }
         );
-        await sock.sendMessage(messageFrom, { react: { text: "", key: messageReceived.key } })
+        await params.sock.sendMessage(params.messageFrom, { react: { text: "", key: params.messageReceived.key } })
     } catch {
         const text = "Ocorreu um erro em sua pesquisa. Tente novamente"
-        await sock.sendMessage(
-            messageFrom,
+        await params.sock.sendMessage(
+            params.messageFrom,
             {
                 text: text
             },
             {
-                messageReceived
+                quoted: params.messageReceived
             }
         );
-        await sock.sendMessage(messageFrom, { react: { text: "", key: messageReceived.key } })
+        await params.sock.sendMessage(params.messageFrom, { react: { text: "", key: params.messageReceived.key } })
     }
 
 }

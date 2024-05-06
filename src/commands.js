@@ -36,56 +36,56 @@ export const botCommands = {
         commands: ['play_video'],
         description: 'Baixe videos do YouTube',
         argDesc: 'nome do video',
-        execution: async () => { await downloadMediaYt(sock, messageFrom, args, command, messageReceived) },
+        execution: async (params) => { await downloadMediaYt(params) },
     },
 
     play_audio: {
         commands: ['play_audio', 'play'],
         description: 'Baixe áudio de vídeos do Youtube',
         argDesc: 'nome do video',
-        execution: async () => { await downloadMediaYt(sock, messageFrom, args, command, messageReceived) },
+        execution: async (params) => { await downloadMediaYt(params) },
     },
 
     inky: {
         commands: ['inky'],
         description: 'Gere resposta inteligente a partir de sua pergunta',
         argDesc: 'sua pergunta',
-        execution: async () => { await InkyIaAnswer(sock, messageFrom, args, messageReceived) },
+        execution: async (params) => { await InkyIaAnswer(params) },
     },
 
     downloadvideo: {
         commands: ['download', 'd', 'dl'],
         description: 'Aqui você pode baixar vídeos do youtube, instagram e tiktok',
         argDesc: 'link',
-        execution:  async () => { await downloads(sock, messageFrom, args, messageReceived) },
+        execution:  async (params) => { await downloads(params) },
     },
 
     search: {
         commands: ['pesquisar', 'p', 'search', 'pesquisa'],
         description: 'Aqui você pode baixar pesquisar algo no Google',
         argDesc: 'sua pesquisa',
-        execution: async () => { await search(sock, messageFrom, args, messageReceived)},
+        execution: async (params) => { await search(params)},
     },
 
     openSite: {
         commands: ['site', 'abrir'],
         description: 'Aqui você pode abrir uma página a partir de um link',
         argDesc: 'link',
-        execution: async () => { await openSite(sock, messageFrom, args, messageReceived)}
+        execution: async (params) => { await openSite(params)}
     },
 
     sugestao: {
         commands: ['sugestao'],
         description: 'Envie sugestões com este comando, assim você contribui ao meu desenvolvimento',
         argDesc: 'sua sugestão',
-        execution: async () => { await suggestion(sock, messageFrom, messageReceived, args) },
+        execution: async (params) => { await suggestion(params) },
     },
 
     bug: {
         commands: ['bug'],
         description: 'Reporte bugs percebidos, assim recorrerei ao meu desenvolvedor',
         argDesc: 'bug encontrado',
-        execution: async () => { await bug(sock, messageFrom, messageReceived, args) },
+        execution: async (params) => { await bug(params) },
     },
 };
 

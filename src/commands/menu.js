@@ -19,7 +19,7 @@ export async function menuFunc(params) {
     const second = seconds < 10 ? '0' + seconds : seconds;
 
     let prefixes = ''
-    let botName = '`Inky Bot v0.6.1 (beta)`'
+    let botName = '`Inky Bot v0.6.5 (beta)`'
     botSettings.prefixes.forEach((p) => { prefixes = prefixes + p + ' ' });
     let quote = '`'
     let commandInfo = '';

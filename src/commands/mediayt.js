@@ -3,21 +3,10 @@ import ytsearch from 'yt-search';
 import ytcore from "ytdl-core";
 import { sendReaction, sendText, sendImage, sendAudio, sendVideo } from '../commands/answers.js';
 import fs from "fs";
-const fetch = (...args) =>
-  import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-const getBuffer = async (url) => {
-  let response = await fetch(url, {
-    method: "get",
-    body: null,
-  });
+import { getBuffer } from '../utils/getBuffer.js';
 
-  let media = await response.arrayBuffer();
-  const nodeBuffer = Buffer.from(media);
-  return nodeBuffer;
-};
-
-export const downloadMediaYt = async (sock, messageFrom, args, command, messageReceived) => {
+export const downloadMediaYt = async (params) => {
 
   const randomId = `${Math.random().toString(36).substring(2, 10)}`;
   
@@ -28,11 +17,11 @@ export const downloadMediaYt = async (sock, messageFrom, args, command, messageR
 
   try {
 
-    await sendReaction(sock, messageFrom, '🔎', messageReceived);
-
-    const response = await ytsearch(args).catch(()=>{
-      //TODO: send message of error
-    })
+    await sendReaction(params.sock, params.messageFrom, '🔎', params.messageReceived);
+    const response = await ytsearch(params.args).catch(async()=>{
+      let text = "Ocorreu um erro ao pesquisar a mídia. Tente novamente"
+      await sendText(params.sock, params.messageFrom, text, params.messageReceived)
+    });
     const video = response.videos[0]
     const titleVideo = video.title
     const durationVideo = video.timestamp
@@ -51,16 +40,16 @@ Status: *${stats}*`
     }
 
     const thumb = await getBuffer(video.thumbnail);
-    const filePath = `./src/temp/file_${randomId}.${mediaTypes[command]}`;
+    const filePath = `./src/temp/file_${randomId}.${mediaTypes[params.command]}`;
     const filePathImage = `./src/temp/thumb_${randomId}.png`;
 
     fs.writeFileSync(filePathImage, thumb);
   
-    const imageInstance = await sendImage(sock, messageFrom, thumb, text('baixando ⌛'), messageReceived);
+    const imageInstance = await sendImage(params.sock, params.messageFrom, thumb, text('baixando ⌛'), params.messageReceived);
 
     if (durationSeconds > 1800){
       new Promise(resolve => setTimeout(resolve, 2000));
-      await sock.sendMessage(messageFrom, {
+      await params.sock.sendMessage(params.messageFrom, {
         image: imageInstance.message.imageMessage.mediaKey,
         caption: text('O video tem mais de 30 minutos ❌'),
         edit: imageInstance.key
@@ -71,7 +60,7 @@ Status: *${stats}*`
 
     fs.unlinkSync(filePathImage);
 
-    await sendReaction(sock, messageFrom, '', messageReceived);
+    await sendReaction(params.sock, params.messageFrom, '', params.messageReceived);
 
     const downloadMedia = async () => {
 
@@ -84,19 +73,19 @@ Status: *${stats}*`
 
         videoWriteStream.on("finish", async () => {
 
-          await sock.sendMessage(messageFrom, {
+          await params.sock.sendMessage(params.messageFrom, {
             image: imageInstance.message.imageMessage.mediaKey,
             caption: text('enviando📤'),
             edit: imageInstance.key
           });
 
-          if (command === "play_video") {
-            await sendVideo(sock, messageFrom, {url: filePath}, messageReceived);
-          } else if (command === "play_audio") {
-            await sendAudio(sock, messageFrom, filePath, messageReceived);
+          if (params.command === "play_video") {
+            await sendVideo(params.sock, params.messageFrom, {url: filePath}, params.messageReceived);
+          } else if (params.command === "play_audio") {
+            await sendAudio(params.sock, params.messageFrom, filePath, params.messageReceived);
           }
 
-          await sock.sendMessage(messageFrom, {
+          await params.sock.sendMessage(params.messageFrom, {
             image: imageInstance.message.imageMessage.mediaKey,
             caption: text('enviado ✅'),
             edit: imageInstance.key
@@ -110,9 +99,9 @@ Status: *${stats}*`
     await downloadMedia();
 
   } catch (error) {
-    await sendReaction(sock, messageFrom, '', messageReceived)
+    await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
     let text = "Ocorreu um erro ao baixar a mídia. Tente novamente"
-    await sendText(sock, messageFrom, text, messageReceived)
+    await sendText(params.sock, params.messageFrom, text, params.messageReceived)
     console.error(error)
   }
 }

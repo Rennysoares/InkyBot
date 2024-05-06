@@ -145,13 +145,14 @@ export default async function handlingMessages(sock, messageReceived) {
         }
 
         const params = {
-            sock, 
+            sock,
+            args,
             messageFrom, 
             messageReceived, 
             messageType, 
             command, 
             pushName,
-            currentPrefix
+            currentPrefix,
         };
 
         for (const commandKey in botCommands) {

@@ -3,9 +3,9 @@ import archiver from 'archiver';
 import fs from 'fs';
 import path from 'path';
 
-export async function openSite(sock, messageFrom, args, messageReceived) {
+export async function openSite(params) {
     
-    await sock.sendMessage(messageFrom, { react: { text: "🔎", key: messageReceived.key } })
+    await params.sock.sendMessage(params.messageFrom, { react: { text: "🔎", key: params.messageReceived.key } })
 
     const caminhoDoArquivo = './src/temp/site.zip';
     const pastaParaApagar = './src/temp/site';
@@ -41,21 +41,21 @@ export async function openSite(sock, messageFrom, args, messageReceived) {
 
     apagarZIP(caminhoDoArquivo);
 
-    if (!args){
-        await sock.sendMessage(
-            messageFrom,
+    if (!params.args){
+        await params.sock.sendMessage(
+            params.messageFrom,
             {
                 text: 'Nunca vi abrir um site sem o link. Use o comando com o link que deseja abrir'
             },
             {
-                messageReceived
+                quoted: params.messageReceived
             }
         );
         return
     }
     try {
         const options = {
-            urls: [args],
+            urls: [params.args],
             directory: './src/temp/site',
             request: {
                 headers: {
@@ -110,20 +110,20 @@ export async function openSite(sock, messageFrom, args, messageReceived) {
                 console.error('Erro ao compactar:', err);
             });
 
-        await sock.sendMessage(messageFrom, { document: { url: './src/temp/site.zip' }, mimetype: 'application/zip', fileName: 'site.zip', caption: 'O site está no arquivo index.html\nO site pode não abrir\nO site poderá ficar desestruturado\nBoa sorte'}, { messageReceived })
-        await sock.sendMessage(messageFrom, { react: { text: "", key: messageReceived.key } })
+        await params.sock.sendMessage(params.messageFrom, { document: { url: './src/temp/site.zip' }, mimetype: 'application/zip', fileName: 'site.zip', caption: 'O site está no arquivo index.html\nO site pode não abrir\nO site poderá ficar desestruturado\nBoa sorte'}, { quoted: params.messageReceived })
+        await params.sock.sendMessage(params.messageFrom, { react: { text: "", key: params.messageReceived.key } })
         deleteFolder(pastaParaApagar);
         apagarZIP(caminhoDoArquivo);
     } catch (e){
-        await sock.sendMessage(messageFrom, { react: { text: "", key: messageReceived.key } })
+        await params.sock.sendMessage(params.messageFrom, { react: { text: "", key: params.messageReceived.key } })
         console.error(e)
-        await sock.sendMessage(
-            messageFrom,
+        await params.sock.sendMessage(
+            params.messageFrom,
             {
                 text: 'Ocorreu um erro. Provavelmente o link é inválido ou o site possui barreiras de segurança. Tente novamente'
             },
             {
-                messageReceived
+                quoted: params.messageReceived
             }
         );
     }
