@@ -1,6 +1,6 @@
 /**
  * @license
- * InkyBot v0.6.5
+ * InkyBot v0.7.0
  * Copyright 2024 rennysoares and other contributors.
  * This code is released under the MIT license.
  * SPDX-License-Identifier: MIT

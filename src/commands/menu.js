@@ -1,15 +1,17 @@
 import {
     sendText,
     sendImage,
+    sendReaction
 } from './answers.js';
 
 import { botSettings } from '../config.js';
 import { botCommands } from '../commands.js';
+import { menuimage } from '../utils/menuimage.js'
 
 export async function menuFunc(params) {
-
+    await sendReaction(params.sock, params.messageFrom, '⌛', params.messageReceived)
     const date = new Date();
-    const formDate = date.toLocaleDateString();
+    const formDate = date.toLocaleDateString('pt-BR');
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
@@ -19,7 +21,7 @@ export async function menuFunc(params) {
     const second = seconds < 10 ? '0' + seconds : seconds;
 
     let prefixes = ''
-    let botName = '`Inky Bot v0.6.5 (beta)`'
+    let botName = 'Inky Bot v0.7.0 (alfa)'
     botSettings.prefixes.forEach((p) => { prefixes = prefixes + p + ' ' });
     let quote = '`'
     let commandInfo = '';
@@ -30,13 +32,14 @@ export async function menuFunc(params) {
     var salutation = ''
     // Verifica em qual período do dia estamos
     if (hours < madrugadaLimite) {
-        salutation = 'Boa madrugada'
+        
+        salutation = 'Boa madrugada 🌇'
     } else if (hours < manhaLimite) {
-        salutation = 'Bom dia'
+        salutation = 'Bom dia 🌅'
     } else if (hours < tardeLimite) {
-        salutation = 'Boa tarde'
+        salutation = 'Boa tarde 🌇'
     } else {
-        salutation = 'Boa noite'
+        salutation = 'Boa noite 🌃'
     }
     // Iterando sobre o objeto botCommands usando forEach
     Object.entries(botCommands).forEach(([commandName, commandData]) => {
@@ -47,29 +50,36 @@ export async function menuFunc(params) {
         const alternativeCommands = [...commandData.commands]; // Criando uma cópia da array original
         alternativeCommands.shift();
 
-        commandInfo += `${quote}${params.currentPrefix}${commandData.commands[0]}${quote}${commandData?.argDesc ? ' _' + commandData?.argDesc + '_' : ''}\n`;
+        commandInfo += `*${params.currentPrefix}${commandData.commands[0]}*${commandData?.argDesc ? ' _' + commandData?.argDesc + '_' : ''}\n`;
         /**
-        commandInfo += `> ${commandData.description}\n`;
-        commandInfo += `${commandData.commands.length > 1 ? '> Alternativos: ' + currentPrefix + alternativeCommands.join(' .') + '\n' : ''}`;
-        commandInfo += `${commandData?.tip ? '> Dica: ' + commandData.tip + '\n' : ''}`;
+        commandInfo += > ${commandData.description}\n;
+        commandInfo += ${commandData.commands.length > 1 ? '> Alternativos: ' + currentPrefix + alternativeCommands.join(' .') + '\n' : ''};
+        commandInfo += ${commandData?.tip ? '> Dica: ' + commandData.tip + '\n' : ''};
         commandInfo += '\n';
          */
         
     });
 
     const text =
-`
-╭──────────────────╮ 
-│      ${botName}              
-╰──────────────────╯
-Oi, ${params.pushName}! ${salutation}
+`¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+${botName}              
+¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+Olá, ${params.pushName}! ${salutation}
 
-Aqui os meus comandos:
-
+🔽Confira meus principais comandos disponíveis
+¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 ${commandInfo}
-:)`
+¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+Precisa de ajuda? Envie ${params.currentPrefix}help
+:)
+¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+`
 
     const image = './src/assets/inky.jpg'
-    //await sendText(sock, messageFrom, text, messageReceived)
-    await sendImage(params.sock, params.messageFrom, { url: image }, text, params.messageReceived)
+    const gif = './src/assets/gif.mp4'
+
+    let urlmenuimage = await menuimage(params, hour, minute, second, formDate);
+    //await params.sock.sendMessage(params.messageFrom, { video: { url: gif }, caption: text, gifPlayback: true}, { quoted:params.messageReceived });
+    await sendImage(params.sock, params.messageFrom, { url: urlmenuimage }, text,params.messageReceived,"image/gif");
+    await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
 }

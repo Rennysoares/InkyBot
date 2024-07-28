@@ -32,7 +32,10 @@ export async function pingInky(params) {
                 ]);
 
                 // Carrega a imagem
-                const image = await Jimp.read('./src/assets/banner.jpeg');
+                var lista = ['banner1.png', 'banner2.jpeg', 'banner3.jpeg', 'banner4.jpeg', 'banner5.jpeg', 'banner6.jpeg']
+                var elemento = lista[Math.floor(Math.random() * lista.length)]
+                var urlbanner = './src/assets/' + elemento
+                var image = await Jimp.read(urlbanner);
 
                 const text1 = "Ping";
                 const text2 = pingRes;

@@ -21,4 +21,4 @@ export const getBuffer = async (url) => {
     let media = await response.arrayBuffer();
     const nodeBuffer = Buffer.from(media);
     return nodeBuffer;
-  };
+};

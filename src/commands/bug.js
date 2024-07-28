@@ -5,7 +5,7 @@ import {
 export async function bug(params) {
     await params.sock.sendPresenceUpdate('composing', params.messageFrom);
     if (!params.args) {
-        text = `Não irei conseguir me desenvolver com uma sugestão de correção de bug vazia :(`
+        let text = `Não irei conseguir me desenvolver com uma sugestão de correção de bug vazia :(`
         await sendText(params.sock, params.messageFrom, text, params.messageReceived)
         return
     }

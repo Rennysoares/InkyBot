@@ -34,10 +34,10 @@ export default async function connectInky() {
     sock.ev.on("connection.update", async (message) => {
         const { connection, lastDisconnect } = message;
         if (connection === "close") {
-            console.log("Connection closed");
-            const shouldReconnect = lastDisconnect.error instanceof Boom && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut;
+            let shouldReconnect = lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect)
             if (shouldReconnect) {
-                setTimeout(() => connectInky(), 10000); // Tentar reconectar após 10 segundos
+                setTimeout(() => connectInky(), 5000); // Tentar reconectar após 10 segundos
             }
         } else if (connection === "open") {
             console.log("Connected");
@@ -60,4 +60,3 @@ export default async function connectInky() {
         };
     });
 }
-

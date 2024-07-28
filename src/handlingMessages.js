@@ -25,7 +25,6 @@ export default async function handlingMessages(sock, messageReceived) {
     const pushName = messageReceived.pushName;
     const userIsGroup = messageFrom.endsWith("@g.us");
     let idUser = userIsGroup ? messageReceived?.key?.participant : messageFrom;
-
     const groupData = userIsGroup ? await sock.groupMetadata(messageFrom) : "";
     const groupMembers = userIsGroup ? groupData.participants : ""
     const groupInfo = {
@@ -39,8 +38,8 @@ export default async function handlingMessages(sock, messageReceived) {
 
     const key = {
         remoteJid: messageReceived.key.remoteJid,
-        id: messageReceived.key.id, 
-        participant: messageReceived?.key?.participant 
+        id: messageReceived.key.id,
+        participant: messageReceived?.key?.participant
     }
 
     isCommand ? await sock.readMessages([key]) : null;
@@ -95,13 +94,22 @@ export default async function handlingMessages(sock, messageReceived) {
         )
 
     }
-    
+
     botSettings.isConsoleLog && !isFromMe ? showConsoleLog() : null;
 
     let commandFound = false;
 
     if (isCommand) {
 
+        if (botSettings.maintenance) {
+            await sendText(
+                sock,
+                messageFrom,
+                'No momento a Inky está em manutenção. Por favor, tente usar este comando em um outro momento',
+                messageReceived);
+            return
+        }
+        /*
         if (command == 'teste'){
             
             await sock.relayMessage(
@@ -143,16 +151,17 @@ export default async function handlingMessages(sock, messageReceived) {
             ).then((r) => console.log(r));
             return
         }
-
+        */
         const params = {
             sock,
             args,
-            messageFrom, 
-            messageReceived, 
-            messageType, 
-            command, 
+            messageFrom,
+            messageReceived,
+            messageType,
+            command,
             pushName,
             currentPrefix,
+            idUser
         };
 
         for (const commandKey in botCommands) {
@@ -174,7 +183,7 @@ export default async function handlingMessages(sock, messageReceived) {
         await sendText(
             sock,
             messageFrom,
-            `Use${currentPrefix}menu para ver os comandos disponíveis `,
+            `Use ${currentPrefix}menu para ver os comandos disponíveis `,
             messageReceived);
     }
     await sock.sendPresenceUpdate('available', messageFrom);

@@ -3,7 +3,7 @@ import fs from 'fs';
 import imageType from 'image-type';
 const fetch = (...args) =>
     import('node-fetch').then(({ default: fetch }) => fetch(...args));
-import ytcore from "ytdl-core";
+import ytdl from "@distube/ytdl-core";
 import { youtubedl, tiktokdl } from '@bochilteam/scraper-sosmed';
 import { snapsave, savefrom } from '@bochilteam/scraper';
 import { sendText, sendReaction, sendVideo, sendImage } from "./answers.js";
@@ -30,7 +30,7 @@ async function fromYoutube(link, sock, messageFrom, messageReceived) {
     try {
         return new Promise((resolve, reject) => {
             try {
-                const videoStream = ytcore(link, { filter: "audioandvideo" });
+                const videoStream = ytdl(link, { filter: "audioandvideo" });
                 videoStream.on("info", () => {
                     const randomId = `${Math.random().toString(36).substring(2, 10)}`;
                     const filePath = `./src/temp/file_${randomId}.mp4`;

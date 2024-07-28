@@ -25,7 +25,6 @@ export async function InkyIaAnswer(params) {
         const text = response.text();
         await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
         await sendText(params.sock, params.messageFrom, text, params.messageReceived)
-        console.log(text);
     }
     try{
         await sendReaction(params.sock, params.messageFrom, '🤔', params.messageReceived)
