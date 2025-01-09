@@ -9,7 +9,7 @@ import { botCommands } from '../commands.js';
 import { menuimage } from '../utils/menuimage.js'
 
 export async function menuFunc(params) {
-    await sendReaction(params.sock, params.messageFrom, '⌛', params.messageReceived)
+    //await sendReaction(params.sock, params.messageFrom, '⌛', params.messageReceived)
     const date = new Date();
     const formDate = date.toLocaleDateString('pt-BR');
     const hours = date.getHours();
@@ -78,8 +78,13 @@ Precisa de ajuda? Envie ${params.currentPrefix}help
     const image = './src/assets/inky.jpg'
     const gif = './src/assets/gif.mp4'
 
-    let urlmenuimage = await menuimage(params, hour, minute, second, formDate);
-    //await params.sock.sendMessage(params.messageFrom, { video: { url: gif }, caption: text, gifPlayback: true}, { quoted:params.messageReceived });
-    await sendImage(params.sock, params.messageFrom, { url: urlmenuimage }, text,params.messageReceived,"image/gif");
-    await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
+    
+    await sendText(
+        params.sock,
+       params. messageFrom,
+        text,
+        params.messageReceived);
+    //let urlmenuimage = await menuimage(params, hour, minute, second, formDate);
+    //await sendImage(params.sock, params.messageFrom, { url: urlmenuimage }, text,params.messageReceived,"image/gif");
+    //await sendReaction(params.sock, params.messageFrom, '', params.messageReceived)
 }

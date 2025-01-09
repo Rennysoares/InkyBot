@@ -8,6 +8,7 @@ import { pingInky } from './commands/ping.js';
 import { downloads } from './commands/downloads.js';
 import { search } from './commands/search.js';
 import { openSite } from './commands/opensite.js';
+import { officetopdf } from './commands/officetopdf.js';
 
 export const botCommands = {
 
@@ -66,14 +67,14 @@ export const botCommands = {
         argDesc: 'sua pesquisa',
         execution: async (params) => { await search(params)},
     },
-
+    /*
     openSite: {
         commands: ['site', 'abrir'],
         description: 'Aqui você pode abrir uma página a partir de um link',
         argDesc: 'link',
         execution: async (params) => { await openSite(params)}
     },
-
+    */
     sugestao: {
         commands: ['sugestao'],
         description: 'Envie sugestões com este comando, assim você contribui ao meu desenvolvimento',
@@ -86,6 +87,12 @@ export const botCommands = {
         description: 'Reporte bugs percebidos, assim recorrerei ao meu desenvolvedor',
         argDesc: 'bug encontrado',
         execution: async (params) => { await bug(params) },
+    },
+
+    pdftoword: {
+        commands: ['pdftoword'],
+        description: '*COMANDO EM DESENVOLVIMENTO*!!!',
+        execution: async (params) => { await officetopdf(params) },
     },
 };
 
