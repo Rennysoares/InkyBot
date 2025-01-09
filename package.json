@@ -5,7 +5,7 @@
     "@distube/ytdl-core": "^4.13.5",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google/generative-ai": "^0.2.1",
-    "@whiskeysockets/baileys": "github:zennn08/Baileys#profile-picture-url",
+    "@whiskeysockets/baileys": "6.5.0",
     "archiver": "^7.0.1",
     "axios": "^1.6.7",
     "cfonts": "^3.2.0",
